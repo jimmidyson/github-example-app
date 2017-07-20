@@ -16,33 +16,15 @@ package config
 
 func NewWithDefaults() Config {
 	return Config{
-		HTTPConfig{
-			Address: "",
-			Port:    8080,
-		},
-		WebhookConfig{},
-		GitHubIntegrationConfig{},
+		GitHubAppConfig{},
 	}
 }
 
 type Config struct {
-	HTTP              HTTPConfig              `mapstructure:"http"`
-	Webhook           WebhookConfig           `mapstructure:"webhook"`
-	GitHubIntegration GitHubIntegrationConfig `mapstructure:"github"`
+	GitHubApp GitHubAppConfig `mapstructure:"github"`
 }
 
-type HTTPConfig struct {
-	Address string `mapstructure:"address"`
-	Port    int    `mapstructure:"port"`
-	TLSCert string `mapstructure:"tlsCert"`
-	TLSKey  string `mapstructure:"tlsKey"`
-}
-
-type WebhookConfig struct {
-	Secret string `mapstructure:"secret"`
-}
-
-type GitHubIntegrationConfig struct {
-	IntegrationID  int    `mapstructure:"integrationId"`
+type GitHubAppConfig struct {
+	AppID          int    `mapstructure:"appId"`
 	PrivateKeyFile string `mapstructure:"privateKey"`
 }

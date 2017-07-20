@@ -36,8 +36,8 @@ var (
 
 var RootCmd = &cobra.Command{
 	Use:   "github-example-app",
-	Short: "PuRe Bot - pull request bot",
-	Long:  `PuRe Bot - pull request bot.`,
+	Short: "GitHub Example App",
+	Long:  `GitHub Example App.`,
 }
 
 func Execute() {
@@ -77,7 +77,7 @@ func initConfig() {
 		v.SetConfigFile(cfgFile)
 	}
 
-	v.SetEnvPrefix("PUREBOT") // Set env prefix
+	v.SetEnvPrefix("GITHUB_EXAMPLE_APP") // Set env prefix
 	v.AutomaticEnv()          // read in environment variables that match
 
 	err := v.ReadInConfig()

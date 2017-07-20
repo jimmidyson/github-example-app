@@ -22,13 +22,8 @@ Usage:
 github-example-app run [flags]
 
 Flags:
-    --bind-address string                     Address to bind to
-    --bind-port int                           Port to bind to (default 8080)
-    --github-integration-id int               GitHub integration ID
-    --github-integration-private-key string   GitHub integration private key file
-    --tls-cert string                         TLS cert file
-    --tls-key string                          TLS key file
-    --webhook-secret string                   Secret to validate incoming webhooks
+    --github-app-id int               GitHub app ID
+    --github-app-private-key string   GitHub app private key file
 
 Global Flags:
     --config string     config file (default is $HOME/.github-example-app.yaml)
