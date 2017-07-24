@@ -17,6 +17,8 @@ package apps
 import (
 	"net/http"
 
+	"io/ioutil"
+
 	"github.com/google/go-github/github"
 	"github.com/pkg/errors"
 )
@@ -24,8 +26,17 @@ import (
 // Shared transport to reuse TCP connections.
 var tr = &http.Transport{}
 
-func Client(appID, installationID int, privateKey []byte) (*github.Client, error) {
-	itr, err := NewTransport(tr, appID, installationID, privateKey)
+func APIClientFromKeyFile(appID, installationID int, privateKeyFile string) (*github.Client, error) {
+	privateKey, err := ioutil.ReadFile(privateKeyFile)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to read private key file")
+	}
+
+	return APIClient(appID, installationID, privateKey)
+}
+
+func APIClient(appID, installationID int, privateKey []byte) (*github.Client, error) {
+	itr, err := NewAPITransport(tr, appID, installationID, privateKey)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create transport from private key file")
 	}

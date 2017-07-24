@@ -15,7 +15,15 @@
 package cmd
 
 import (
+	"net/http"
+
 	"github.com/spf13/cobra"
+	"go.uber.org/zap"
+	"gopkg.in/src-d/go-git.v4"
+	"gopkg.in/src-d/go-git.v4/plumbing/transport"
+	githttp "gopkg.in/src-d/go-git.v4/plumbing/transport/http"
+
+	"github.com/jimmidyson/github-example-app/pkg/github/apps"
 )
 
 // runCmd represents the run command
@@ -26,6 +34,18 @@ var runCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		printVersion()
 
+		gitTransport, err := apps.NewGitTransportFromKeyFile(&http.Transport{}, botConfig.GitHubApp.AppID, botConfig.GitHubApp.InstallationID, botConfig.GitHubApp.PrivateKeyFile)
+		if err != nil {
+			logger.Fatal("Failed to create github client", zap.Error(err))
+		}
+		gitHttpClient := githttp.NewClient(&http.Client{Transport: gitTransport})
+
+		git.PlainClone("/tmp/git", false, &git.CloneOptions{
+			Clients: map[string]transport.Transport{
+				"http":  gitHttpClient,
+				"https": gitHttpClient,
+			},
+		})
 	},
 }
 
@@ -36,4 +56,6 @@ func init() {
 	v.BindPFlag("github.appId", runCmd.Flags().Lookup("github-app-id"))
 	runCmd.Flags().String("github-app-private-key", "", "GitHub app private key file")
 	v.BindPFlag("github.privateKey", runCmd.Flags().Lookup("github-app-private-key"))
+	runCmd.Flags().Int("github-app-installation-id", 0, "GitHub app installation id")
+	v.BindPFlag("github.installationId", runCmd.Flags().Lookup("github-app-installation-id"))
 }

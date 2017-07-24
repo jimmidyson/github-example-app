@@ -45,6 +45,7 @@ type Transport struct {
 	key            *rsa.PrivateKey   // key is the GitHub App's private key
 	appID          int               // appID is the GitHub App's Installation ID
 	installationID int               // installationID is the GitHub App's Installation ID
+	authConfigurer func(*http.Request, string)
 
 	mu    *sync.Mutex  // mu protects token
 	token *accessToken // token is the installation's access token
@@ -58,29 +59,67 @@ type accessToken struct {
 
 var _ http.RoundTripper = &Transport{}
 
-// NewTransportFromKeyFile returns an Transport using a private key from file.
-func NewTransportFromKeyFile(tr http.RoundTripper, appID, installationID int, privateKeyFile string) (*Transport, error) {
+// NewAPITransportFromKeyFile returns a Transport for API use using a private key from file.
+func NewAPITransportFromKeyFile(tr http.RoundTripper, appID, installationID int, privateKeyFile string) (*Transport, error) {
 	privateKey, err := ioutil.ReadFile(privateKeyFile)
 	if err != nil {
 		return nil, errors.Wrap(err, "could not read private key")
 	}
-	return NewTransport(tr, appID, installationID, privateKey)
+	return NewAPITransport(tr, appID, installationID, privateKey)
 }
 
-// NewTransport returns an Transport using private key. The key is parsed
+// NewAPITransport returns an Transport for API using private key. The key is parsed
 // and if any errors occur the transport is nil and error is non-nil.
 //
 // The provided tr http.RoundTripper should be shared between multiple
 // installations to ensure reuse of underlying TCP connections.
 //
 // The returned Transport is safe to be used concurrently.
-func NewTransport(tr http.RoundTripper, appID, installationID int, privateKey []byte) (*Transport, error) {
+func NewAPITransport(tr http.RoundTripper, appID, installationID int, privateKey []byte) (*Transport, error) {
 	t := &Transport{
 		tr:             tr,
 		appID:          appID,
 		installationID: installationID,
 		BaseURL:        apiBaseURL,
 		mu:             &sync.Mutex{},
+		authConfigurer: func(req *http.Request, token string) {
+			req.Header.Set("Authorization", "token "+token)
+		},
+	}
+	var err error
+	t.key, err = jwt.ParseRSAPrivateKeyFromPEM(privateKey)
+	if err != nil {
+		return nil, errors.Wrap(err, "could not parse private key")
+	}
+	return t, nil
+}
+
+// NewGitTransportFromKeyFile returns a Transport for git use using a private key from file.
+func NewGitTransportFromKeyFile(tr http.RoundTripper, appID, installationID int, privateKeyFile string) (*Transport, error) {
+	privateKey, err := ioutil.ReadFile(privateKeyFile)
+	if err != nil {
+		return nil, errors.Wrap(err, "could not read private key")
+	}
+	return NewAPITransport(tr, appID, installationID, privateKey)
+}
+
+// NewGitTransport returns an Transport for git using private key. The key is parsed
+// and if any errors occur the transport is nil and error is non-nil.
+//
+// The provided tr http.RoundTripper should be shared between multiple
+// installations to ensure reuse of underlying TCP connections.
+//
+// The returned Transport is safe to be used concurrently.
+func NewGitTransport(tr http.RoundTripper, appID, installationID int, privateKey []byte) (*Transport, error) {
+	t := &Transport{
+		tr:             tr,
+		appID:          appID,
+		installationID: installationID,
+		BaseURL:        apiBaseURL,
+		mu:             &sync.Mutex{},
+		authConfigurer: func(req *http.Request, token string) {
+			req.SetBasicAuth("x-access-token", token)
+		},
 	}
 	var err error
 	t.key, err = jwt.ParseRSAPrivateKeyFromPEM(privateKey)
@@ -102,7 +141,7 @@ func (t *Transport) RoundTrip(req *http.Request) (*http.Response, error) {
 	}
 	t.mu.Unlock()
 
-	req.Header.Set("Authorization", "token "+t.token.Token)
+	t.authConfigurer(req, t.token.Token)
 	resp, err := t.tr.RoundTrip(req)
 	return resp, err
 }

@@ -27,4 +27,5 @@ type Config struct {
 type GitHubAppConfig struct {
 	AppID          int    `mapstructure:"appId"`
 	PrivateKeyFile string `mapstructure:"privateKey"`
+	InstallationID int    `mapstructure:"installationId"`
 }

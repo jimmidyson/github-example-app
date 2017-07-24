@@ -22,18 +22,18 @@
 ## Constraints are rules for how directly imported projects
 ## may be incorporated into the depgraph. They are respected by
 ## dep whether coming from the Gopkg.toml of the current project or a dependency.
-# [[constraint]]
+[[constraint]]
 ## Required: the root import path of the project being constrained.
-# name = "github.com/user/project"
+name = "gopkg.in/src-d/go-git.v4"
 #
 ## Recommended: the version constraint to enforce for the project.
 ## Only one of "branch", "version" or "revision" can be specified.
 # version = "1.0.0"
-# branch = "master"
+branch = "v4-configurable-protocols"
 # revision = "abc123"
 #
 ## Optional: an alternate location (URL or import path) for the project's source.
-# source = "https://github.com/myfork/package.git"
+source = "https://github.com/jimmidyson/go-git.git"
 #
 ## "metadata" defines metadata about the dependency or override that could be used
 ## by other independent systems. The metadata defined here will be ignored by dep.

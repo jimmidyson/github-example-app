@@ -23,7 +23,7 @@
   branch = "master"
   name = "github.com/google/go-github"
   packages = ["github"]
-  revision = "e062a8cd852f0fb981c8c9f837c214c4d1031870"
+  revision = "fb256a0e9b341e277520f4d811b6dc6e5d4aa481"
 
 [[projects]]
   branch = "master"
@@ -75,6 +75,12 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/sergi/go-diff"
+  packages = ["diffmatchpatch"]
+  revision = "feef008d51ad2b3778f85d387ccf91735543008d"
+
+[[projects]]
+  branch = "master"
   name = "github.com/spf13/afero"
   packages = [".","mem"]
   revision = "9be650865eab0c12963d8753212f4f9c66cdcf12"
@@ -89,7 +95,7 @@
   branch = "master"
   name = "github.com/spf13/cobra"
   packages = ["."]
-  revision = "715f41bd7a70b5111f898b71ab484da52ee6266d"
+  revision = "90fc11bbc0a789c29272c21b5ff9e93db183f8dc"
 
 [[projects]]
   branch = "master"
@@ -98,16 +104,28 @@
   revision = "0efa5202c04663c757d84f90f5219c1250baf94f"
 
 [[projects]]
-  branch = "master"
   name = "github.com/spf13/pflag"
   packages = ["."]
   revision = "e57e3eeb33f795204c1ca35f56c44f83227c6e66"
+  version = "v1.0.0"
 
 [[projects]]
   branch = "master"
   name = "github.com/spf13/viper"
   packages = ["."]
-  revision = "c1de95864d73a5465492829d7cb2dd422b19ac96"
+  revision = "25b30aa063fc18e48662b86996252eabdcf2f0c7"
+
+[[projects]]
+  name = "github.com/src-d/gcfg"
+  packages = [".","scanner","token","types"]
+  revision = "f187355171c936ac84a82793659ebb4936bc1c23"
+  version = "v1.3.0"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/xanzy/ssh-agent"
+  packages = ["."]
+  revision = "ba9c9e33906f58169366275e3450db66139a31a9"
 
 [[projects]]
   name = "go.uber.org/atomic"
@@ -123,21 +141,27 @@
 
 [[projects]]
   name = "go.uber.org/zap"
-  packages = [".","buffer","internal/bufferpool","internal/color","internal/exit","internal/multierror","zapcore"]
-  revision = "9cabc84638b70e564c3dab2766efcb1ded2aac9f"
-  version = "v1.4.1"
+  packages = [".","buffer","internal/bufferpool","internal/color","internal/exit","zapcore"]
+  revision = "9d9d6135afe89b6fc4a05e9a8552526caba38048"
+  version = "v1.5.0"
+
+[[projects]]
+  branch = "master"
+  name = "golang.org/x/crypto"
+  packages = ["curve25519","ed25519","ed25519/internal/edwards25519","ssh","ssh/agent","ssh/knownhosts"]
+  revision = "6914964337150723782436d56b3f21610a74ce7b"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/net"
   packages = ["context"]
-  revision = "02ac38e2528ff4adea90f184d71a3faa04b4b1b0"
+  revision = "ab5485076ff3407ad2d02db054635913f017b0ed"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "7a4fde3fda8ef580a89dbae8138c26041be14299"
+  revision = "c4489faa6e5ab84c0ef40d6ee878f7a030281f0f"
 
 [[projects]]
   branch = "master"
@@ -152,14 +176,33 @@
   version = "v1.0.0"
 
 [[projects]]
+  name = "gopkg.in/src-d/go-billy.v3"
+  packages = [".","helper/chroot","helper/polyfill","osfs","util"]
+  revision = "c329b7bc7b9d24905d2bc1b85bfa29f7ae266314"
+  version = "v3.1.0"
+
+[[projects]]
+  branch = "v4-configurable-protocols"
+  name = "gopkg.in/src-d/go-git.v4"
+  packages = [".","config","internal/revision","plumbing","plumbing/cache","plumbing/filemode","plumbing/format/config","plumbing/format/diff","plumbing/format/gitignore","plumbing/format/idxfile","plumbing/format/index","plumbing/format/objfile","plumbing/format/packfile","plumbing/format/pktline","plumbing/object","plumbing/protocol/packp","plumbing/protocol/packp/capability","plumbing/protocol/packp/sideband","plumbing/revlist","plumbing/storer","plumbing/transport","plumbing/transport/client","plumbing/transport/file","plumbing/transport/git","plumbing/transport/http","plumbing/transport/internal/common","plumbing/transport/server","plumbing/transport/ssh","storage","storage/filesystem","storage/filesystem/internal/dotgit","storage/memory","utils/binary","utils/diff","utils/ioutil","utils/merkletrie","utils/merkletrie/filesystem","utils/merkletrie/index","utils/merkletrie/internal/frame","utils/merkletrie/noder"]
+  revision = "1c61b08dd3dbdb69179af6fb40a1b0281221aa97"
+  source = "https://github.com/jimmidyson/go-git.git"
+
+[[projects]]
+  name = "gopkg.in/warnings.v0"
+  packages = ["."]
+  revision = "8a331561fe74dadba6edfc59f3be66c22c3b065d"
+  version = "v0.1.1"
+
+[[projects]]
   branch = "v2"
   name = "gopkg.in/yaml.v2"
   packages = ["."]
-  revision = "3b4ad1db5b2a649883ff3782f5f9f6fb52be71af"
+  revision = "25c4ec802a7d637f88d584ab26798e94ad14c13b"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "cddacd79c5ae307489dd1ce8f425c65dd2f874705e9b640818dc2ac5e68f548f"
+  inputs-digest = "32ba92f5d4ad947044902482c3f99d3480b93914f7d9c8ecb0c1874a292cb1d0"
   solver-name = "gps-cdcl"
   solver-version = 1
