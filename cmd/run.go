@@ -15,11 +15,15 @@
 package cmd
 
 import (
+	"io/ioutil"
 	"net/http"
+	"os"
+	"time"
 
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 	"gopkg.in/src-d/go-git.v4"
+	"gopkg.in/src-d/go-git.v4/plumbing/object"
 	"gopkg.in/src-d/go-git.v4/plumbing/transport"
 	githttp "gopkg.in/src-d/go-git.v4/plumbing/transport/http"
 
@@ -40,12 +44,49 @@ var runCmd = &cobra.Command{
 		}
 		gitHttpClient := githttp.NewClient(&http.Client{Transport: gitTransport})
 
-		git.PlainClone("/tmp/git", false, &git.CloneOptions{
+		repo, err := git.PlainClone("/tmp/git", false, &git.CloneOptions{
+			URL:      "https://github.com/jimmidyson/github-example-app",
+			Progress: os.Stdout,
 			Clients: map[string]transport.Transport{
 				"http":  gitHttpClient,
 				"https": gitHttpClient,
 			},
 		})
+		if err != nil {
+			logger.Fatal("Failed to clone git repo", zap.Error(err))
+		}
+
+		ioutil.WriteFile("/tmp/git/testing", []byte("this is a test"), 0644)
+
+		wt, err := repo.Worktree()
+		if err != nil {
+			logger.Fatal("Failed to get worktree", zap.Error(err))
+		}
+		_, err = wt.Add("testing")
+		if err != nil {
+			logger.Fatal("Failed to add new file", zap.Error(err))
+		}
+
+		_, err = wt.Commit("New file testing", &git.CommitOptions{
+			Author: &object.Signature{
+				Name:  "Jimmi Dyson",
+				Email: "jimmidyson@gmail.com",
+				When:  time.Now(),
+			},
+		})
+		if err != nil {
+			logger.Fatal("Failed to commit file", zap.Error(err))
+		}
+
+		err = repo.Push(&git.PushOptions{
+			Clients: map[string]transport.Transport{
+				"http":  gitHttpClient,
+				"https": gitHttpClient,
+			},
+		})
+		if err != nil {
+			logger.Fatal("Failed to commit file", zap.Error(err))
+		}
 	},
 }
 

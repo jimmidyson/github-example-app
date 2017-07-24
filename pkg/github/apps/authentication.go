@@ -100,7 +100,7 @@ func NewGitTransportFromKeyFile(tr http.RoundTripper, appID, installationID int,
 	if err != nil {
 		return nil, errors.Wrap(err, "could not read private key")
 	}
-	return NewAPITransport(tr, appID, installationID, privateKey)
+	return NewGitTransport(tr, appID, installationID, privateKey)
 }
 
 // NewGitTransport returns an Transport for git using private key. The key is parsed
@@ -118,6 +118,7 @@ func NewGitTransport(tr http.RoundTripper, appID, installationID int, privateKey
 		BaseURL:        apiBaseURL,
 		mu:             &sync.Mutex{},
 		authConfigurer: func(req *http.Request, token string) {
+			fmt.Printf("Using token %s\n", token)
 			req.SetBasicAuth("x-access-token", token)
 		},
 	}
