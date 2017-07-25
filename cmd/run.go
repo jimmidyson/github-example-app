@@ -47,7 +47,7 @@ var runCmd = &cobra.Command{
 		}
 
 		// Create a github repo
-		githubRepo, _, err := githubClient.Repositories.Create(context.Background(), "", &github.Repository{
+		githubRepo, _, err := githubClient.Repositories.Create(context.Background(), "purehub", &github.Repository{
 			Name: github.String("foo"),
 		})
 		if err != nil {
