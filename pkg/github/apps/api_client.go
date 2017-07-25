@@ -15,9 +15,8 @@
 package apps
 
 import (
-	"net/http"
-
 	"io/ioutil"
+	"net/http"
 
 	"github.com/google/go-github/github"
 	"github.com/pkg/errors"

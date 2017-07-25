@@ -83,6 +83,7 @@ func NewAPITransport(tr http.RoundTripper, appID, installationID int, privateKey
 		BaseURL:        apiBaseURL,
 		mu:             &sync.Mutex{},
 		authConfigurer: func(req *http.Request, token string) {
+			fmt.Printf("token %s\n", token)
 			req.Header.Set("Authorization", "token "+token)
 		},
 	}

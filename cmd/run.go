@@ -15,14 +15,16 @@
 package cmd
 
 import (
+	"context"
 	"io/ioutil"
 	"net/http"
-	"os"
 	"time"
 
+	"github.com/google/go-github/github"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 	"gopkg.in/src-d/go-git.v4"
+	"gopkg.in/src-d/go-git.v4/config"
 	"gopkg.in/src-d/go-git.v4/plumbing/object"
 	"gopkg.in/src-d/go-git.v4/plumbing/transport"
 	githttp "gopkg.in/src-d/go-git.v4/plumbing/transport/http"
@@ -38,35 +40,57 @@ var runCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		printVersion()
 
-		gitTransport, err := apps.NewGitTransportFromKeyFile(&http.Transport{}, botConfig.GitHubApp.AppID, botConfig.GitHubApp.InstallationID, botConfig.GitHubApp.PrivateKeyFile)
+		// Get a github client
+		githubClient, err := apps.APIClientFromKeyFile(botConfig.GitHubApp.AppID, botConfig.GitHubApp.InstallationID, botConfig.GitHubApp.PrivateKeyFile)
 		if err != nil {
 			logger.Fatal("Failed to create github client", zap.Error(err))
 		}
-		gitHttpClient := githttp.NewClient(&http.Client{Transport: gitTransport})
 
-		repo, err := git.PlainClone("/tmp/git", false, &git.CloneOptions{
-			URL:      "https://github.com/jimmidyson/github-example-app",
-			Progress: os.Stdout,
-			Clients: map[string]transport.Transport{
-				"http":  gitHttpClient,
-				"https": gitHttpClient,
-			},
+		// Create a github repo
+		githubRepo, _, err := githubClient.Repositories.Create(context.Background(), "", &github.Repository{
+			Name: github.String("foo"),
 		})
 		if err != nil {
-			logger.Fatal("Failed to clone git repo", zap.Error(err))
+			logger.Fatal("Failed to create github repo", zap.Error(err))
 		}
 
+		// Configure git http client
+		gitTransport, err := apps.NewGitTransportFromKeyFile(&http.Transport{}, botConfig.GitHubApp.AppID, botConfig.GitHubApp.InstallationID, botConfig.GitHubApp.PrivateKeyFile)
+		if err != nil {
+			logger.Fatal("Failed to create git transport", zap.Error(err))
+		}
+		gitHttpClient := githttp.NewClient(&http.Client{Transport: gitTransport})
+
+		// Initialize an empty repository
+		repo, err := git.PlainInit("/tmp/git", false)
+		if err != nil {
+			logger.Fatal("Failed to init git repo", zap.Error(err))
+		}
+
+		// Add a remote to the github repo we created above
+		_, err = repo.CreateRemote(&config.RemoteConfig{
+			Name: "origin",
+			URL:  githubRepo.GetCloneURL(),
+		})
+		if err != nil {
+			logger.Fatal("Failed to add remote", zap.Error(err))
+		}
+
+		// Create a dummy file
 		ioutil.WriteFile("/tmp/git/testing", []byte("this is a test"), 0644)
 
+		// Get the working tree
 		wt, err := repo.Worktree()
 		if err != nil {
 			logger.Fatal("Failed to get worktree", zap.Error(err))
 		}
+		// Add the new file
 		_, err = wt.Add("testing")
 		if err != nil {
 			logger.Fatal("Failed to add new file", zap.Error(err))
 		}
 
+		// git commit
 		_, err = wt.Commit("New file testing", &git.CommitOptions{
 			Author: &object.Signature{
 				Name:  "Jimmi Dyson",
@@ -78,6 +102,7 @@ var runCmd = &cobra.Command{
 			logger.Fatal("Failed to commit file", zap.Error(err))
 		}
 
+		// git push
 		err = repo.Push(&git.PushOptions{
 			Clients: map[string]transport.Transport{
 				"http":  gitHttpClient,
